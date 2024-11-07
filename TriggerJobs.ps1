@@ -1,15 +1,23 @@
 ﻿param(
     [Parameter(ParameterSetName="Standard")][String]$username,
     [Parameter(ParameterSetName="Standard")][String]$password,
-    [Parameter(ParameterSetName="Interactive")][Switch]$Interactive
+    [Parameter(ParameterSetName="Interactive")][Switch]$Interactive,
+    [Parameter(ParameterSetName="Certificate")][Switch]$Certificate
 )
 <#
     CONFIG
 
-    Register PnP and get the clientid by doing:
+    Register PnP by doing:
      Register-PnPEntraIDApp -ApplicationName "PnP PowerShell App Registration" -Tenant [tenant].onmicrosoft.com -Interactive
+
+    This will also generate a self-signed certificate, uploads it to Azure, and stores a pfx file in the current directory
+    Store the certificate in the local store by dubble-clicking the pfx file
+    Get the thumbprint and the clientid from the Azure portal
+    Connect to SharePoint via Connect-PnPOnline -ClientId CLIENTID -Thumbprint THUMBPRINT -Tenant TENANT -Url URL
+
 #>
 $clientid = '62b0270a-153a-4fb2-b8b9-602fb1131362'
+$thumbprint = ''
 
 $database = "otcs_extraction_050724"
 $mongocs  = "mongodb://HOST:27017/$($database)"
@@ -31,8 +39,9 @@ switch ($PSCmdlet.ParameterSetName)
             $env:PSModulePath = $env:PSModulePath+";.\Modules"
             Import-Module Mdbc -ErrorAction Stop
         }
+        break
     }
-    'Interactive'
+    {$_ -eq 'Interactive' -or $_ -eq 'Certificate'}
     {
         <# Run in PowerShell 7. Load PnP #>
         try
@@ -46,7 +55,12 @@ switch ($PSCmdlet.ParameterSetName)
             Import-Module PnP.PowerShell -ErrorAction Stop
             Import-Module Mdbc -ErrorAction Stop
         }
-
+        break
+    }
+    Default
+    {
+        Write-Host "Invalid Arguments" -ForegroundColor Red
+        exit
     }
 }
 
@@ -83,6 +97,12 @@ ForEach {
                 'Interactive'
                 {
                     $pnpconnection = Connect-PnPOnline -Interactive -Url $siteurl -ReturnConnection -WarningAction Ignore -ClientId $clientid -ErrorAction Stop
+                    $context = $pnpconnection.context
+                    break
+                }
+                'Certificate'
+                {
+                    $pnpconnection = Connect-PnPOnline -Url $siteurl -ReturnConnection -WarningAction Ignore -ClientId $clientid -Thumprint $thumbprint -ErrorAction Stop
                     $context = $pnpconnection.context
                     break
                 }
