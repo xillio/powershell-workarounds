@@ -6,8 +6,9 @@
         [Parameter(Mandatory=$True, ParameterSetName="Interactive")][Switch]$Interactive,
         [Parameter(Mandatory=$True, ParameterSetName="Certificate")][String]$ClientId,
         [Parameter(Mandatory=$True, ParameterSetName="Certificate")][String]$Thumbprint,
+        [Parameter(Mandatory=$True, ParameterSetName="Certificate")][String]$Tenant,
         [String]$MongoHost='127.0.0.1',
-        [String]$MonogPort=27017,
+        [String]$MongoPort=27017,
         [Parameter(Mandatory=$True)][String]$MongoDatabase,
         [String]$MongoCollection='documents'
     )
@@ -70,7 +71,7 @@
                     }
                     'Certificate'
                     {
-                        $pnpconnection = Connect-PnPOnline -Url $siteurl -ReturnConnection -WarningAction Ignore -ClientId $ClientId -Thumprint $Thumbprint -ErrorAction Stop
+                        $pnpconnection = Connect-PnPOnline -Url $siteurl -ReturnConnection -WarningAction Ignore -ClientId $ClientId -Thumbprint $Thumbprint -Tenant $Tenant -ErrorAction Stop
                         $context = $pnpconnection.context
                         break
                     }
@@ -116,6 +117,7 @@
         {
             Write-Host $_.Exception.Message -ForegroundColor Red
             Update-MdbcData -Filter @{'_id'=$package._id} -Update @{'$set'=@{'migration.failed'=$True; 'migration.failedMessage'=$_.Exception.Message}}
+            throw
         }
     }
 }

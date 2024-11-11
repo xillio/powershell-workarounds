@@ -10,11 +10,12 @@ $mongoCollection = 'documents'
 
 $ClientId   = 'CLIENTID'
 $Thumbprint = 'THUMBPRINT'
+$Tenant     = 'TENANT'
 
 <#
     Make sure Mdbc and PnP.PowerShell are in the module path
 #>
-if(-not $env.PSModulePath.contains('.\Modules'))
+if(-not $env:PSModulePath.contains('.\Modules'))
 {
     $env:PSModulePath = $env:PSModulePath+";.\Modules"
 }
@@ -22,4 +23,4 @@ if(-not $env.PSModulePath.contains('.\Modules'))
 <#
     RUN
 #>
-Trigget-Jobs -MongoDatabase $MongoDatabase -MongoHost $MongoHost -MongoPort $MongoPort -MongoColleciton $MongoCollection -ClientId $ClientId -Thumprint $Thumbprint
+Trigger-Jobs -MongoDatabase $MongoDatabase -MongoHost $MongoHost -MongoPort $MongoPort -MongoCollection $MongoCollection -ClientId $ClientId -Tenant $Tenant -Thumbprint $Thumbprint
