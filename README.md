@@ -31,4 +31,5 @@ On the local machine:
 - At the top of the script TriggerJobs.ps1 configure:
   - the Mongo database HOST, PORT, NAME, and COLLECTION
   - the CLIENTID and THUMBPRINT that were noted down from the Azure Portal
+  - the TENANT name (for example xyz.onmicrosoft.com)
 - In a PowerShell 7 window run TriggerJobs.ps1
